@@ -143,13 +143,27 @@ app.get("/", (req, res) => {
   );
 });
 
-app.get("/auth/steam", passport.authenticate("steam"));
+app.get("/auth/steam/return", (req, res, next) => {
+  passport.authenticate("steam", (err, user) => {
+    if (err) {
+      console.error("STEAM AUTH ERROR:", err);
+      return res.status(500).send("Steam login error. Vaata Render Logs.");
+    }
 
-app.get(
-  "/auth/steam/return",
-  passport.authenticate("steam", { failureRedirect: "/" }),
-  (req, res) => res.redirect("/dashboard")
-);
+    if (!user) {
+      return res.redirect("/");
+    }
+
+    req.logIn(user, (loginErr) => {
+      if (loginErr) {
+        console.error("LOGIN SESSION ERROR:", loginErr);
+        return res.status(500).send("Session login error. Vaata Render Logs.");
+      }
+
+      return res.redirect("/dashboard");
+    });
+  })(req, res, next);
+});
 
 app.get("/dashboard", requireAuth, async (req, res) => {
   const { data: user } = await supabase
