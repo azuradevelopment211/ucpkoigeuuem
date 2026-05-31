@@ -37,13 +37,13 @@ function steamId64ToHex(steamId64) {
   const base = BigInt("76561197960265728");
   return "steam:" + (steamId - base).toString(16);
 }
-
 passport.use(
   new SteamStrategy(
     {
       returnURL: `${process.env.BASE_URL}/auth/steam/return`,
       realm: `${process.env.BASE_URL}/`,
       apiKey: process.env.STEAM_API_KEY,
+      stateless: true,
     },
     async (identifier, profile, done) => {
       try {
